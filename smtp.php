@@ -1,5 +1,5 @@
 <?php
-namespace xp;
+namespace xp\email;
 
 class smtp
 {
