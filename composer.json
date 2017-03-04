@@ -6,7 +6,7 @@
     }],
     "minimum-stability": "stable",
     "autoload": {
-        "psr-4": {"xp\\email\\":"xp/email//"}
+        "psr-4": {"xp\\email\\":"/"}
     },
     "require": {}
 }
