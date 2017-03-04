@@ -1,6 +1,6 @@
 {
-    name: "xp/email",
-    authors: [{
+    name:"xp/email",
+    authors:[{
         name: "lxp521125",
         email: "xpwork2017@163.com"
     }],
