@@ -1,0 +1,12 @@
+{
+    name: "xp/email",
+    authors: [{
+        name: "lxp521125",
+        email: "xpwork2017@163.com"
+    }],
+    minimum - stability: "stable",
+    autoload: {
+        psr - 4: {}
+    },
+    require: {}
+}
