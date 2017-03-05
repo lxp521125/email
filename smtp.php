@@ -29,8 +29,9 @@ class smtp
     }
     public function sendmail($to, $from, $subject = "", $body = "", $mailtype, $cc = "", $bcc = "", $additional_headers = "")
     {
+        $header = '';
         $mail_from = $this->get_address($this->strip_comment($from));
-        $body = str_replace("(^|(\r\n))(\\.)", "\\1.\\3", $body);
+        $body = preg_replace("/(^|(\r\n))(\\.)/", "\\1.\\3", $body);
         $header .= "MIME-Version:1.0\r\n";
         if ($mailtype == "HTML") {
             $header .= "Content-Type:text/html\r\n";
@@ -146,8 +147,8 @@ class smtp
 
     public function smtp_sockopen_mx($address)
     {
-        $domain = ereg_replace("^.+@([^@]+)$", "\\1", $address);
-        if (!@getmxrr($domain, $MXHOSTS)) {
+        $domain = preg_replace("/^.+@([^@]+)$/", "\\1", $address);
+        if (!getmxrr($domain, $MXHOSTS)) {
             $this->log_write("Error: Cannot resolve MX \"" . $domain . "\"\n");
             return false;
         }
@@ -169,7 +170,7 @@ class smtp
     public function smtp_message($header, $body)
     {
         fputs($this->sock, $header . "\r\n" . $body);
-        $this->smtp_debug("> " . str_replace("\r\n", "\n" . "> ", $header . "\n> " . $body . "\n> "));
+        $this->smtp_debug("> " . preg_replace("/\r\n/", "\n" . "> ", $header . "\n> " . $body . "\n> "));
 
         return true;
     }
@@ -184,10 +185,10 @@ class smtp
 
     public function smtp_ok()
     {
-        $response = str_replace("\r\n", "", fgets($this->sock, 512));
+        $response = preg_replace("/\r\n/", "", fgets($this->sock, 512));
         $this->smtp_debug($response . "\n");
 
-        if (!ereg("^[23]", $response)) {
+        if (!preg_match("/^[23]/", $response)) {
             fputs($this->sock, "QUIT\r\n");
             fgets($this->sock, 512);
             $this->log_write("Error: Remote host returned \"" . $response . "\"\n");
@@ -241,9 +242,9 @@ class smtp
 
     public function strip_comment($address)
     {
-        $comment = "\\([^()]*\\)";
-        while (ereg($comment, $address)) {
-            $address = ereg_replace($comment, "", $address);
+        $comment = "/\\([^()]*\\)/";
+        while (preg_match($comment, $address)) {
+            $address = preg_replace($comment, "", $address);
         }
 
         return $address;
@@ -251,8 +252,8 @@ class smtp
 
     public function get_address($address)
     {
-        $address = ereg_replace("([ \t\r\n])+", "", $address);
-        $address = ereg_replace("^.*<(.+)>.*$", "\\1", $address);
+        $address = preg_replace("/([ \t\r\n])+/", "", $address);
+        $address = preg_replace("/^.*<(.+)>.*$/", "\\1", $address);
 
         return $address;
     }
@@ -314,19 +315,3 @@ class smtp
         return $filedata;
     }
 }
-
-/**
- *实例化邮件类
- */
-$smtpserver = "smtp.163.com"; //SMTP服务器
-$smtpserverport = 25; //SMTP服务器端口
-$smtpusermail = "240331511@163.com"; //SMTP服务器的用户邮箱
-$smtpemailto = "240331511@163.com"; //发送给谁
-$smtpuser = "240331511@163.com"; //SMTP服务器的用户帐号
-$smtppass = "123147mcl"; //SMTP服务器的用户密码
-$mailsubject = "PHP100测试邮件系统"; //邮件主题
-$mailbody = "<h1>你的用户名是张三，密码是123147mcl </h1>"; //邮件内容
-$mailtype = "HTML"; //邮件格式（HTML/TXT）,TXT为文本邮件
-$smtp = new smtp($smtpserver, $smtpserverport, true, $smtpuser, $smtppass);
-$smtp->debug = true; //是否显示发送的调试信息
-$smtp->sendmail($smtpemailto, $smtpusermail, $mailsubject, $mailbody, $mailtype);
