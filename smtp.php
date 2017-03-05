@@ -13,7 +13,7 @@ class smtp
     public $user;
     public $pass;
     public $sock;
-    public function smtp($relay_host = "", $smtp_port = 25, $auth = false, $user, $pass)
+    public function __construct($relay_host = "", $smtp_port = 25, $auth = false, $user, $pass)
     {
         $this->debug = true;
         $this->smtp_port = $smtp_port;
@@ -148,7 +148,7 @@ class smtp
     public function smtp_sockopen_mx($address)
     {
         $domain = preg_replace("/^.+@([^@]+)$/", "\\1", $address);
-        if (!getmxrr($domain, $MXHOSTS)) {
+        if (!@getmxrr($domain, $MXHOSTS)) {
             $this->log_write("Error: Cannot resolve MX \"" . $domain . "\"\n");
             return false;
         }
